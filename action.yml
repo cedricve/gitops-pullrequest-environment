@@ -36,7 +36,7 @@ runs:
   - name: Make new directory and copy template file with replaced pr version
     shell: bash
     run: |
-      cd gitops
+      cd gitops/pullrequests/${{ inputs.gitops-project }}
       mkdir -p overlay/${{ inputs.gitops-project }}/${{ inputs.gitops-pr-environment }}
       cp overlays/kustomization.yaml overlay/${{ inputs.gitops-pr-environment }}/kustomization.yaml
       sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlay/${{ inputs.gitops-pr-environment }}/kustomization.yaml
