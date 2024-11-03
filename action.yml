@@ -37,9 +37,9 @@ runs:
     shell: bash
     run: |
       cd gitops/pullrequests/${{ inputs.gitops-project }}
-      mkdir -p overlay/${{ inputs.gitops-project }}/${{ inputs.gitops-pr-environment }}
-      cp overlays/kustomization.yaml overlay/${{ inputs.gitops-pr-environment }}/kustomization.yaml
-      sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlay/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+      mkdir -p overlays/${{ inputs.gitops-project }}/${{ inputs.gitops-pr-environment }}
+      cp overlays/kustomization.yaml overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+      sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
   - name: Commit and push changes
     shell: bash
     run: |
