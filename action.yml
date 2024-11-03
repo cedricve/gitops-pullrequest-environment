@@ -1,5 +1,5 @@
-name: 'GitOps Pull Request Action'
-description: 'Used for updating a GitOps repo with new image(s)'
+name: 'GitOps Pull Request Environment'
+description: 'Used for creating, updating or deleting PR environments through a GitOps repo.'
 inputs:
   github-token:
     description: 'GitHub token'
