@@ -12,6 +12,7 @@ steps:
       action: "create"
       github-token: ${{ secrets.TOKEN }}
       gitops-repo: "uug-ai/gitops"
+      gitops-project: "hub-frontend"
       gitops-pr-environment: "pr244"
       commit-email: "gitops@uug.ai"
       commit-name: "GitOps"

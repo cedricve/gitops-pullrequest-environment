@@ -7,7 +7,10 @@ inputs:
   gitops-repo:
     description: 'GitOps repo to update'
     required: true
-  gitops-pr-environemnt:
+  gitops-project:
+    description: 'GitOps project'
+    required: true
+  gitops-pr-environment:
     description: 'GitOps environment to be created'
     required: true 
   commit-email:
@@ -30,17 +33,34 @@ runs:
       ref: 'main'
       token: ${{ inputs.github-token }}
       path: gitops
-  - uses: fjogeleit/yaml-update-action@main
-    with:
-      branch: deployment/${{ inputs.gitops-pr-branch }}
-      targetBranch: main
-      masterBranchName: main
-      createPR: true
-      commitChange: true
-      repository: ${{ inputs.gitops-repo }}
-      message: ${{ inputs.commit-message }}
-      workDir: gitops
-      valueFile: ${{ inputs.gitops-file }}
-      propertyPath: ${{ inputs.gitops-key }}
-      value: ${{ inputs.gitops-value }}
-      token: ${{ inputs.github-token }}
+  - name: Make new directory and copy template file with replaced pr version
+    shell: bash
+    run: |
+      cd gitops
+      mkdir -p overlay/${{ inputs.gitops-project }}/${{ inputs.gitops-pr-environment }}
+      cp overlays/kustomization.yaml overlay/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+      sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlay/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+  - name: Commit and push changes
+    shell: bash
+    run: |
+      cd gitops
+      git config --global user.email "${{ inputs.commit-email }}"
+      git config --global user.name "${{ inputs.commit-name }}"
+      git add .
+      git commit -m "${{ inputs.commit-message }}"
+      git push
+
+  # - uses: fjogeleit/yaml-update-action@main
+  #   with:
+  #     branch: deployment/${{ inputs.gitops-pr-branch }}
+  #     targetBranch: main
+  #     masterBranchName: main
+  #     createPR: true
+  #     commitChange: true
+  #     repository: ${{ inputs.gitops-repo }}
+  #     message: ${{ inputs.commit-message }}
+  #     workDir: gitops
+  #     valueFile: ${{ inputs.gitops-file }}
+  #     propertyPath: ${{ inputs.gitops-key }}
+  #     value: ${{ inputs.gitops-value }}
+  #     token: ${{ inputs.github-token }}
