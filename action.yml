@@ -1,0 +1,46 @@
+name: 'GitOps Pull Request Action'
+description: 'Used for updating a GitOps repo with new image(s)'
+inputs:
+  github-token:
+    description: 'GitHub token'
+    required: true
+  gitops-repo:
+    description: 'GitOps repo to update'
+    required: true
+  gitops-pr-environemnt:
+    description: 'GitOps environment to be created'
+    required: true 
+  commit-email:
+    description: 'Email address to use for the commit'
+    required: true
+  commit-name:
+    description: 'Name to use for the commit'
+    required: true
+  commit-message:
+    description: 'Message to use for the commit'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Checkout GitOps Repository
+    uses: actions/checkout@v3
+    with:
+      repository: ${{ inputs.gitops-repo }}
+      ref: 'main'
+      token: ${{ inputs.github-token }}
+      path: gitops
+  - uses: fjogeleit/yaml-update-action@main
+    with:
+      branch: deployment/${{ inputs.gitops-pr-branch }}
+      targetBranch: main
+      masterBranchName: main
+      createPR: true
+      commitChange: true
+      repository: ${{ inputs.gitops-repo }}
+      message: ${{ inputs.commit-message }}
+      workDir: gitops
+      valueFile: ${{ inputs.gitops-file }}
+      propertyPath: ${{ inputs.gitops-key }}
+      value: ${{ inputs.gitops-value }}
+      token: ${{ inputs.github-token }}
