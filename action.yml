@@ -40,7 +40,7 @@ runs:
       token: ${{ inputs.github-token }}
       path: gitops
   - name: Create a new overlays environment
-    if: ${{ inputs.action == 'opened' }}
+    if: ${{ inputs.action == 'opened' || inputs.action == 'reopened' }}
     shell: bash
     run: |
       cd gitops/pullrequests/${{ inputs.gitops-project }}
@@ -50,7 +50,7 @@ runs:
       # Add - <PR_NUMBER> to the main overylays/kustomization.yaml
       echo "  - ${{ inputs.gitops-pr-environment }}" >> overlays/kustomization.yaml
   - name: Update overlays environment
-    if: ${{ inputs.action == 'synchronize' || inputs.action == 'opened' }}
+    if: ${{ inputs.action == 'synchronize' || inputs.action == 'opened' || inputs.action == 'reopened' }}
     uses: fjogeleit/yaml-update-action@main
     with:
       valueFile: 'gitops/pullrequests/${{ inputs.gitops-project }}/overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml'
