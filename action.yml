@@ -62,7 +62,8 @@ runs:
     run: |
       cd gitops/pullrequests/${{ inputs.gitops-project }}
       rm -rf overlays/${{ inputs.gitops-pr-environment }}
-      # TODO Remove from main kustomization.yaml
+      # Remove - <PR_NUMBER> from the main overylays/kustomization.yaml
+      sed -i "/${{ inputs.gitops-pr-environment }}/d" overlays/kustomization.yaml
   - name: Commit and push changes
     shell: bash
     run: |
