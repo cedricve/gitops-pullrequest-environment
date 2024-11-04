@@ -47,7 +47,8 @@ runs:
       mkdir -p overlays/${{ inputs.gitops-pr-environment }}
       cp overlays/template.yaml overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
       sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
-      # TODO Add to main kustomization.yaml
+      # Add - <PR_NUMBER> to the main overylays/kustomization.yaml
+      echo "  - ${{ inputs.gitops-pr-environment }}" >> overlays/kustomization.yaml
   - name: Update overlays environment
     if: ${{ inputs.action == 'synchronize' || inputs.action == 'opened' }}
     uses: fjogeleit/yaml-update-action@main
