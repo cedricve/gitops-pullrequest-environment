@@ -59,7 +59,7 @@ runs:
     if: ${{ inputs.action == 'synchronize' }}
     uses: fjogeleit/yaml-update-action@main
     with:
-      valueFile: 'overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml'
+      valueFile: 'gitops/pullrequests/${{ inputs.gitops-project }}/overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml'
       changes: ${{ inputs.changes }}
       commitChange: false
   - name: Commit and push changes
