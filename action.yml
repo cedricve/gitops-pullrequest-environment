@@ -1,6 +1,9 @@
 name: 'GitOps Pull Request Environment'
 description: 'Used for creating, updating or deleting PR environments through a GitOps repo.'
 inputs:
+  action:
+    description: 'Action to perform'
+    required: true
   github-token:
     description: 'GitHub token'
     required: true
@@ -33,13 +36,27 @@ runs:
       ref: 'main'
       token: ${{ inputs.github-token }}
       path: gitops
-  - name: Make new directory and copy template file with replaced pr version
+  - name: Create a new overlays environment
+    if: ${{ inputs.action == 'opened' }}
     shell: bash
     run: |
       cd gitops/pullrequests/${{ inputs.gitops-project }}
       mkdir -p overlays/${{ inputs.gitops-pr-environment }}
       cp overlays/template.yaml overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
       sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+      # TODO Add to main kustomization.yaml
+  - name: Delete an overlay environment
+    if: ${{ inputs.action == 'closed' }}
+    shell: bash
+    run: |
+      cd gitops/pullrequests/${{ inputs.gitops-project }}
+      rm -rf overlays/${{ inputs.gitops-pr-environment }}
+      # TODO Remove from main kustomization.yaml
+  - name: Update overlays environment
+    if: ${{ inputs.action == 'update' }}
+    shell: bash
+    run: |
+      cd gitops/pullrequests/${{ inputs.gitops-project }}
   - name: Commit and push changes
     shell: bash
     run: |
