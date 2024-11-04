@@ -4,6 +4,9 @@ inputs:
   action:
     description: 'Action to perform'
     required: true
+  changes:
+    description: 'Changes to be applied'
+    required: true
   github-token:
     description: 'GitHub token'
     required: true
@@ -53,10 +56,11 @@ runs:
       rm -rf overlays/${{ inputs.gitops-pr-environment }}
       # TODO Remove from main kustomization.yaml
   - name: Update overlays environment
-    if: ${{ inputs.action == 'update' }}
+    if: ${{ inputs.action == 'synchronize' }}
     shell: bash
     run: |
       cd gitops/pullrequests/${{ inputs.gitops-project }}
+      echo "${{ inputs.changes }}"
   - name: Commit and push changes
     shell: bash
     run: |
