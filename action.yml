@@ -6,7 +6,7 @@ inputs:
     required: true
   changes:
     description: 'Changes to be applied'
-    required: true
+    required: false
   github-token:
     description: 'GitHub token'
     required: true
@@ -48,6 +48,13 @@ runs:
       cp overlays/template.yaml overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
       sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
       # TODO Add to main kustomization.yaml
+  - name: Update overlays environment
+    if: ${{ inputs.action == 'synchronize' || inputs.action == 'opened' }}
+    uses: fjogeleit/yaml-update-action@main
+    with:
+      valueFile: 'gitops/pullrequests/${{ inputs.gitops-project }}/overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml'
+      changes: ${{ inputs.changes }}
+      commitChange: false
   - name: Delete an overlay environment
     if: ${{ inputs.action == 'closed' }}
     shell: bash
@@ -55,13 +62,6 @@ runs:
       cd gitops/pullrequests/${{ inputs.gitops-project }}
       rm -rf overlays/${{ inputs.gitops-pr-environment }}
       # TODO Remove from main kustomization.yaml
-  - name: Update overlays environment
-    if: ${{ inputs.action == 'synchronize' }}
-    uses: fjogeleit/yaml-update-action@main
-    with:
-      valueFile: 'gitops/pullrequests/${{ inputs.gitops-project }}/overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml'
-      changes: ${{ inputs.changes }}
-      commitChange: false
   - name: Commit and push changes
     shell: bash
     run: |
@@ -71,18 +71,3 @@ runs:
       git add .
       git commit -m "${{ inputs.commit-message }}"
       git push
-
-  # - uses: fjogeleit/yaml-update-action@main
-  #   with:
-  #     branch: deployment/${{ inputs.gitops-pr-branch }}
-  #     targetBranch: main
-  #     masterBranchName: main
-  #     createPR: true
-  #     commitChange: true
-  #     repository: ${{ inputs.gitops-repo }}
-  #     message: ${{ inputs.commit-message }}
-  #     workDir: gitops
-  #     valueFile: ${{ inputs.gitops-file }}
-  #     propertyPath: ${{ inputs.gitops-key }}
-  #     value: ${{ inputs.gitops-value }}
-  #     token: ${{ inputs.github-token }}
