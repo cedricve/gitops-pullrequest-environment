@@ -40,15 +40,17 @@ runs:
       token: ${{ inputs.github-token }}
       path: gitops
   - name: Create a new overlays environment
-    if: ${{ inputs.action == 'opened' || inputs.action == 'reopened' }}
+    if: ${{ inputs.action == 'synchronize' || inputs.action == 'opened' || inputs.action == 'reopened' }}
     shell: bash
     run: |
       cd gitops/pullrequests/${{ inputs.gitops-project }}
-      mkdir -p overlays/${{ inputs.gitops-pr-environment }}
-      cp overlays/template.yaml overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
-      sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
-      # Add - <PR_NUMBER> to the main overylays/kustomization.yaml
-      echo "  - ${{ inputs.gitops-pr-environment }}" >> overlays/kustomization.yaml
+      if [ ! -d "overlays/${{ inputs.gitops-pr-environment }}" ]; then
+        mkdir -p overlays/${{ inputs.gitops-pr-environment }}
+        cp overlays/template.yaml overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+        sed -i "s/<PR_NUMBER>/${{ inputs.gitops-pr-environment }}/g" overlays/${{ inputs.gitops-pr-environment }}/kustomization.yaml
+        # Add - <PR_NUMBER> to the main overlays/kustomization.yaml
+        echo "  - ${{ inputs.gitops-pr-environment }}" >> overlays/kustomization.yaml
+      fi
   - name: Update overlays environment
     if: ${{ inputs.action == 'synchronize' || inputs.action == 'opened' || inputs.action == 'reopened' }}
     uses: fjogeleit/yaml-update-action@main
